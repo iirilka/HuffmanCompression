@@ -5,13 +5,14 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.NoSuchElementException;
+import java.util.logging.Logger;
 
 public final class InputStreamFile {
     private static final int EOF = -1;
     private BufferedInputStream bufferedInputStream;
     private int buffer;
     private int numberOfBits;
-
+    Logger logger = Logger.getLogger(InputStreamFile.class.getName());
 
     public InputStreamFile(String name) {
 
@@ -25,7 +26,7 @@ public final class InputStreamFile {
             }
 
         } catch (IOException ioe) {
-            System.err.println("Невозможно открыть " + name);
+            logger.info("Невозможно открыть " + name);
         }
     }
 
@@ -34,7 +35,7 @@ public final class InputStreamFile {
             buffer = bufferedInputStream.read();
             numberOfBits = 8;
         } catch (IOException e) {
-            System.err.println("EOF");
+            logger.info("EOF");
             buffer = EOF;
             numberOfBits = -1;
         }

@@ -2,6 +2,7 @@ package module.Huffman;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.PriorityQueue;
@@ -38,7 +39,7 @@ public class HuffmanSubmission implements Huffman {
     }
 
     public static void createTree() {
-        priorityQueue = new PriorityQueue<>((Node l, Node r) -> l.getFrequency() - r.getFrequency());
+        priorityQueue = new PriorityQueue<>(Comparator.comparingInt(Node::getFrequency));
         for (Map.Entry<Character, Integer> entry : frequencyOfLetter.entrySet()) {
             priorityQueue.add(new Node(entry.getKey(), entry.getValue()));
         }
