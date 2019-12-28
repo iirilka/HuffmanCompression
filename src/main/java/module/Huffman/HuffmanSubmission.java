@@ -1,16 +1,18 @@
 package module.Huffman;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.PriorityQueue;
 
 public class HuffmanSubmission implements Huffman {
-    static Node root = null;
-    static String decodeStrings;
-    static Map<Character, Integer> frequencyOfLetter = new HashMap<>();
-    static Map<Character, String> binaryCodes = new HashMap<>();
-    static StringBuilder stringBuilder = new StringBuilder();
-    static PriorityQueue<Node> priorityQueue;
+    private static Node root = null;
+    private static String decodeStrings;
+    private static Map<Character, Integer> frequencyOfLetter = new HashMap<>();
+    private static Map<Character, String> binaryCodes = new HashMap<>();
+    private static StringBuilder stringBuilder = new StringBuilder();
+    private static PriorityQueue<Node> priorityQueue;
 
     public static void storeInMapR(Node root, String str, Map<Character, String> codes) {
         if (root == null) {
@@ -35,14 +37,13 @@ public class HuffmanSubmission implements Huffman {
         }
     }
 
-    public static void createATree() {
+    public static void createTree() {
         priorityQueue = new PriorityQueue<>((Node l, Node r) -> l.getFrequency() - r.getFrequency());
         for (Map.Entry<Character, Integer> entry : frequencyOfLetter.entrySet()) {
             priorityQueue.add(new Node(entry.getKey(), entry.getValue()));
         }
 
         while (priorityQueue.size() != 1) {
-            //Remove 2 nodes at a time.
             Node left = priorityQueue.poll();
             Node right = priorityQueue.poll();
 
@@ -94,12 +95,81 @@ public class HuffmanSubmission implements Huffman {
         }
     }
 
-    public void decode(String inputFile, String outputFile, String frequencyFile) {
-
-    }
-
     public void encode(String inputFile, String outputFile, String frequencyFile) {
+        String text = "";
+        InputStreamFile inputStreamFile = new InputStreamFile(inputFile);
+        try {
+            while (true)
+                text += inputStreamFile.readChar();
+        } catch (Exception e) {
+        }
+
+        createFrequencyMap(text);
+
+        //Write/Create freq file
+        try {
+            BufferedWriter writer = new BufferedWriter(new FileWriter(frequencyFile));
+            for (Character key : frequencyOfLetter.keySet()) {
+                String temp = Integer.toBinaryString(key);
+                while (temp.length() != 8) {
+                    temp = "0" + temp;
+                }
+                writer.write(temp + ":" + frequencyOfLetter.get(key));
+                writer.write("\n");
+            }
+            writer.close();
+        } catch (Exception e) {
+        }
+        createTree();
+        BinaryString(text);
+
+        OutputStreamFile outputStreamFile2 = new OutputStreamFile(outputFile);
+        for (String i : stringBuilder.toString().split("")) {
+            if (i.equals("1")) {
+                outputStreamFile2.write(true);
+            } else {
+                outputStreamFile2.write(false);
+            }
+        }
+
+        outputStreamFile2.close();
 
     }
+
+    public void decode(String inputFile, String outputFile, String frequencyFile) {
+        String text = "";
+        InputStreamFile inputStreamFile2 = new InputStreamFile(inputFile);
+        try {
+            while (true) {
+                if (inputStreamFile2.readBoolean())
+                    text += 1;
+                else
+                    text += 0;
+            }
+        } catch (Exception e) {
+        }
+
+        frequencyOfLetter.clear();
+        InputStreamFile in = new InputStreamFile(frequencyFile);
+        String temp = in.readString();
+        String[] encoded = temp.split("\n");
+
+        for (int i = 0; i < encoded.length; i++) {
+            String line = encoded[i];
+
+            if (line.length() > 0) {
+                String[] arr = line.split(":");
+                frequencyOfLetter.put((char) Integer.parseInt(arr[0], 2), Integer.parseInt(arr[1]));
+            }
+        }
+        decodeStrings = "";
+        createTree();
+        decodeString(text);
+        OutputStreamFile outputStreamFile2 = new OutputStreamFile(outputFile);
+        outputStreamFile2.write(decodeStrings);
+        outputStreamFile2.flush();
+        outputStreamFile2.close();
+    }
+
 
 }
