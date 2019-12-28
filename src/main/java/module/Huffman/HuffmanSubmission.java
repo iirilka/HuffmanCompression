@@ -105,8 +105,6 @@ public class HuffmanSubmission implements Huffman {
         }
 
         createFrequencyMap(text);
-
-        //Write/Create freq file
         try {
             BufferedWriter writer = new BufferedWriter(new FileWriter(frequencyFile));
             for (Character key : frequencyOfLetter.keySet()) {
